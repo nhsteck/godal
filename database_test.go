@@ -103,6 +103,7 @@ func TestExecuteSelectToMap(t *testing.T) {
 }
 
 func TestExecuteSelectToStruct(t *testing.T) {
+	t.SkipNow()
 	type Users struct {
 		ID    string `db:"id" json:"a_id"`
 		Name  string `db:"name" json:"a_name"`
@@ -127,4 +128,15 @@ func TestExecuteSelectToStruct(t *testing.T) {
 		arrUsers = append(arrUsers, *newUser)
 	}
 	log.Infoln(arrUsers)
+}
+
+func TestExecute(t *testing.T) {
+	sqlExecute := "INSERT INTO users VALUES ($1, $2, $3, $4)"
+	params := []interface{}{127, "Thanh Tâm", "tampham1190@gmail.com", "0989554552"}
+	rs, err := pg.Execute(sqlExecute, params)
+	if err != nil {
+		log.Errorln("FAIL >> TestExecuteSelectToMap ", err)
+		t.Skip()
+	}
+	log.Infoln(rs)
 }

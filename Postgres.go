@@ -285,7 +285,13 @@ func (p Postgres) ExecuteSelectToStruct(sqlQuery string, params []interface{}, r
 }
 
 func (p Postgres) Execute(sqlExecute string, params []interface{}) (interface{}, error) {
-	return nil, nil
+	rs, err := DBConn.Exec(sqlExecute, params...)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return rs, nil
 }
 
 func convertMapToParams(mapData map[string]interface{}) ([]interface{}, string, string) {
