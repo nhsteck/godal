@@ -3,6 +3,7 @@ package godal
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"database/sql"
 
@@ -41,6 +42,48 @@ func (p Postgres) Create(tableName string, mapData map[string]interface{}) (inte
 	`
 	arrValues, strParams, strValues := convertMapToParams(mapData)
 	sqlStatement = fmt.Sprintf(sqlStatement, tableName, strParams, strValues)
+
+	rs, err := DBConn.Exec(sqlStatement, arrValues...)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return rs, nil
+}
+
+func (p Postgres) CreateBatch(tableName string, listMapData []map[string]interface{}) (interface{}, error) {
+	sqlStatement := `
+		INSERT INTO %s(%s) 
+		VALUES %s
+		`
+	var values string
+	var arrValues []interface{} = make([]interface{}, 0)
+
+	listColumns, listColumnsText := getListColumns(listMapData)
+	lenColumns := len(listColumns)
+	index := 1
+
+	for i := 0; i < len(listMapData); i++ {
+		if i == 0 {
+			values = "("
+		} else {
+			values = values + ", ("
+		}
+		for j := 0; j < lenColumns; j++ {
+			arrValues = append(arrValues, listMapData[i][listColumns[j]])
+			if j == lenColumns-1 {
+				values = values + ", " + fmt.Sprintf("$%d", index) + ")"
+			} else if j == 0 {
+				values = values + fmt.Sprintf("$%d", index)
+			} else {
+				values = values + ", " + fmt.Sprintf("$%d", index)
+			}
+			index++
+		}
+	}
+
+	sqlStatement = fmt.Sprintf(sqlStatement, tableName, listColumnsText, values)
 
 	rs, err := DBConn.Exec(sqlStatement, arrValues...)
 	if err != nil {
@@ -315,6 +358,34 @@ func convertMapToParams(mapData map[string]interface{}) ([]interface{}, string, 
 	}
 
 	return arrValues, strParams, strValues
+}
+
+func getListColumns(listMapData []map[string]interface{}) ([]string, string) {
+	var maxLen int = 0
+	var listColumnsText string = ""
+	var listColumns []string
+	var is_reset bool = false
+
+	for i := 0; i < len(listMapData); i++ {
+		for k, _ := range listMapData[i] {
+			lenMap := len(listMapData[i])
+			if lenMap > maxLen {
+				maxLen = lenMap
+				listColumnsText = ""
+				listColumns = []string{}
+				is_reset = true
+			}
+
+			if is_reset {
+				listColumns = append(listColumns, k)
+			}
+		}
+		is_reset = false
+	}
+
+	listColumnsText = strings.Join(listColumns, ", ")
+
+	return listColumns, listColumnsText
 }
 
 func buildConditionQuery(mapData map[string]interface{}, charSplit string, loopIndex int) ([]interface{}, string, int) {

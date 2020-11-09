@@ -27,9 +27,9 @@ func setup() {
 	pg = Postgres{
 		Host:        "127.0.0.1",
 		Port:        "5432",
-		Dbname:      "dbtest",
-		User:        "hungson",
-		Pass:        "1111",
+		Dbname:      "db_godal",
+		User:        "odoo",
+		Pass:        "1234",
 		MaxIdleConn: 10,
 		MaxOpenConn: 2,
 	}
@@ -41,7 +41,7 @@ func TestCreate(t *testing.T) {
 
 	tableName := "users"
 	mapData := map[string]interface{}{
-		"id":    "126",
+		"id":    129,
 		"name":  "Hung Son",
 		"email": "son@gmail.com",
 		"phone": "0909123333",
@@ -49,6 +49,42 @@ func TestCreate(t *testing.T) {
 	_, err := pg.Create(tableName, mapData)
 	if err != nil {
 		log.Errorln("FAIL >> TestCreate")
+		t.Skip()
+	}
+}
+
+func TestCreateBatch(t *testing.T) {
+	//t.SkipNow()
+
+	tableName := "users"
+	var listMapData = make([]map[string]interface{}, 0)
+	firstRow := map[string]interface{}{
+		"name":  "test 1",
+		"email": "test1@local.com",
+		"phone": "0323929323",
+	}
+
+	secondRow := map[string]interface{}{
+		"name":  "test 2",
+		"email": "test2@local.com",
+	}
+
+	thirdRow := map[string]interface{}{
+		"name":  "test 3",
+		"phone": "0323929323",
+	}
+
+	listMapData = append(listMapData, firstRow)
+	listMapData = append(listMapData, secondRow)
+	listMapData = append(listMapData, thirdRow)
+	log.Println("Data Input: ")
+	log.Println(listMapData)
+
+	_, err := pg.CreateBatch(tableName, listMapData)
+	if err != nil {
+		log.Errorln("FAIL >> TestCreateBatch")
+		log.Errorln("Loi: ")
+		log.Errorln(err)
 		t.Skip()
 	}
 }
@@ -131,6 +167,7 @@ func TestExecuteSelectToStruct(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
+	t.Skip()
 	sqlExecute := "INSERT INTO users VALUES ($1, $2, $3, $4)"
 	params := []interface{}{127, "Thanh Tâm", "tampham1190@gmail.com", "0989554552"}
 	rs, err := pg.Execute(sqlExecute, params)
