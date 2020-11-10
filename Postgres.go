@@ -58,36 +58,9 @@ func (p Postgres) CreateBatch(tableName string, listMapData []map[string]interfa
 		INSERT INTO %s(%s) 
 		VALUES %s
 		`
-	var values string
-	var arrValues []interface{} = make([]interface{}, 0)
 
 	listColumns, listColumnsText := getListColumns(listMapData)
-	lenColumns := len(listColumns)
-	index := 1
-
-	for i := 0; i < len(listMapData); i++ {
-		if i == 0 {
-			values = "("
-		} else {
-			values = values + ", ("
-		}
-		for j := 0; j < lenColumns; j++ {
-			v := listMapData[i][listColumns[j]]
-			if reflect.ValueOf(v).Kind() == reflect.Map || reflect.ValueOf(v).Kind() == reflect.Array {
-				v, _ = json.Marshal(v)
-			}
-
-			arrValues = append(arrValues, v)
-			if j == lenColumns-1 {
-				values = values + ", " + fmt.Sprintf("$%d", index) + ")"
-			} else if j == 0 {
-				values = values + fmt.Sprintf("$%d", index)
-			} else {
-				values = values + ", " + fmt.Sprintf("$%d", index)
-			}
-			index++
-		}
-	}
+	arrValues, values := convertListMapToParams(listMapData, listColumns)
 
 	sqlStatement = fmt.Sprintf(sqlStatement, tableName, listColumnsText, values)
 
@@ -107,15 +80,14 @@ func (p Postgres) CreateOrUpdateBatch(tableName string, listMapData []map[string
 		ON CONFLICT (%s) DO UPDATE
 		  SET %s
 		`
-	var values string
-	var arrValues []interface{} = make([]interface{}, 0)
-	var excludeStm string = ""
+
+	excludeStm := ""
 
 	listColumns, listColumnsText := getListColumns(listMapData)
-	lenColumns := len(listColumns)
+	arrValues, values := convertListMapToParams(listMapData, listColumns)
 
 	//Get Exclude Statement
-	for i := 0; i < lenColumns; i++ {
+	for i := 0; i < len(listColumns); i++ {
 		col := listColumns[i]
 		if col != primaryBatch {
 			if excludeStm == "" {
@@ -123,32 +95,6 @@ func (p Postgres) CreateOrUpdateBatch(tableName string, listMapData []map[string
 			} else {
 				excludeStm = excludeStm + ", " + fmt.Sprintf("%s = EXCLUDED.%s", col, col)
 			}
-		}
-	}
-
-	index := 1
-
-	for i := 0; i < len(listMapData); i++ {
-		if i == 0 {
-			values = "("
-		} else {
-			values = values + ", ("
-		}
-		for j := 0; j < lenColumns; j++ {
-			v := listMapData[i][listColumns[j]]
-			if reflect.ValueOf(v).Kind() == reflect.Map || reflect.ValueOf(v).Kind() == reflect.Array {
-				v, _ = json.Marshal(v)
-			}
-
-			arrValues = append(arrValues, v)
-			if j == lenColumns-1 {
-				values = values + ", " + fmt.Sprintf("$%d", index) + ")"
-			} else if j == 0 {
-				values = values + fmt.Sprintf("$%d", index)
-			} else {
-				values = values + ", " + fmt.Sprintf("$%d", index)
-			}
-			index++
 		}
 	}
 
@@ -431,6 +377,38 @@ func convertMapToParams(mapData map[string]interface{}) ([]interface{}, string, 
 	}
 
 	return arrValues, strParams, strValues
+}
+
+func convertListMapToParams(listMapData []map[string]interface{}, listColumns []string) ([]interface{}, string) {
+	var arrValues []interface{}
+	lenColumns := len(listColumns)
+	values := ""
+	index := 1
+
+	for i := 0; i < len(listMapData); i++ {
+		if i == 0 {
+			values = "("
+		} else {
+			values = values + ", ("
+		}
+		for j := 0; j < lenColumns; j++ {
+			v := listMapData[i][listColumns[j]]
+			if reflect.ValueOf(v).Kind() == reflect.Map || reflect.ValueOf(v).Kind() == reflect.Array {
+				v, _ = json.Marshal(v)
+			}
+
+			arrValues = append(arrValues, v)
+			if j == lenColumns-1 {
+				values = values + ", " + fmt.Sprintf("$%d", index) + ")"
+			} else if j == 0 {
+				values = values + fmt.Sprintf("$%d", index)
+			} else {
+				values = values + ", " + fmt.Sprintf("$%d", index)
+			}
+			index++
+		}
+	}
+	return arrValues, values
 }
 
 func getListColumns(listMapData []map[string]interface{}) ([]string, string) {
