@@ -1,6 +1,7 @@
 package godal
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -345,6 +346,10 @@ func convertMapToParams(mapData map[string]interface{}) ([]interface{}, string, 
 	var loopIndex int = 1
 
 	for k, v := range mapData {
+		if reflect.ValueOf(v).Kind() == reflect.Map || reflect.ValueOf(v).Kind() == reflect.Array {
+			v, _ = json.Marshal(v)
+		}
+
 		arrValues = append(arrValues, v)
 		if loopIndex == mapLen {
 			strParams = strParams + k
@@ -394,6 +399,9 @@ func buildConditionQuery(mapData map[string]interface{}, charSplit string, loopI
 	var arrValues []interface{} = make([]interface{}, 0)
 
 	for k, v := range mapData {
+		if reflect.ValueOf(v).Kind() == reflect.Map || reflect.ValueOf(v).Kind() == reflect.Array {
+			v, _ = json.Marshal(v)
+		}
 		arrValues = append(arrValues, v)
 		if loopIndex == mapLen {
 			result = result + fmt.Sprintf("%s=$%d", k, loopIndex)
