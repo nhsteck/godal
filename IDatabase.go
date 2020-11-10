@@ -10,6 +10,9 @@ type IDatabase interface {
 	// Insert multi record to table
 	CreateBatch(tableName string, listMapData []map[string]interface{}) (interface{}, error)
 
+	// Insert or Update multi record to table
+	CreateOrUpdateBatch(tableName string, listMapData []map[string]interface{}, primaryColumns string) (interface{}, error)
+
 	// Update data on table
 	Update(tableName string, newValue map[string]interface{}, whereCondition map[string]interface{}) (interface{}, error)
 

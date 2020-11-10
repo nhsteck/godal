@@ -100,6 +100,69 @@ func (p Postgres) CreateBatch(tableName string, listMapData []map[string]interfa
 	return rs, nil
 }
 
+func (p Postgres) CreateOrUpdateBatch(tableName string, listMapData []map[string]interface{}, primaryBatch string) (interface{}, error) {
+	sqlStatement := `
+		INSERT INTO %s(%s)
+		VALUES %s
+		ON CONFLICT (%s) DO UPDATE
+		  SET %s
+		`
+	var values string
+	var arrValues []interface{} = make([]interface{}, 0)
+	var excludeStm string = ""
+
+	listColumns, listColumnsText := getListColumns(listMapData)
+	lenColumns := len(listColumns)
+
+	//Get Exclude Statement
+	for i := 0; i < lenColumns; i++ {
+		col := listColumns[i]
+		if col != primaryBatch {
+			if excludeStm == "" {
+				excludeStm = fmt.Sprintf("%s = EXCLUDED.%s", col, col)
+			} else {
+				excludeStm = excludeStm + ", " + fmt.Sprintf("%s = EXCLUDED.%s", col, col)
+			}
+		}
+	}
+
+	index := 1
+
+	for i := 0; i < len(listMapData); i++ {
+		if i == 0 {
+			values = "("
+		} else {
+			values = values + ", ("
+		}
+		for j := 0; j < lenColumns; j++ {
+			v := listMapData[i][listColumns[j]]
+			if reflect.ValueOf(v).Kind() == reflect.Map || reflect.ValueOf(v).Kind() == reflect.Array {
+				v, _ = json.Marshal(v)
+			}
+
+			arrValues = append(arrValues, v)
+			if j == lenColumns-1 {
+				values = values + ", " + fmt.Sprintf("$%d", index) + ")"
+			} else if j == 0 {
+				values = values + fmt.Sprintf("$%d", index)
+			} else {
+				values = values + ", " + fmt.Sprintf("$%d", index)
+			}
+			index++
+		}
+	}
+
+	sqlStatement = fmt.Sprintf(sqlStatement, tableName, listColumnsText, values, primaryBatch, excludeStm)
+
+	rs, err := DBConn.Exec(sqlStatement, arrValues...)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return rs, nil
+}
+
 func (p Postgres) Update(tableName string, newValue map[string]interface{}, whereCondition map[string]interface{}) (interface{}, error) {
 	sqlStatement := `
 		UPDATE %s 

@@ -54,7 +54,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestCreateBatch(t *testing.T) {
-	//t.SkipNow()
+	t.SkipNow()
 
 	tableName := "users"
 	var listMapData = make([]map[string]interface{}, 0)
@@ -69,7 +69,46 @@ func TestCreateBatch(t *testing.T) {
 		"email": "test2@local.com",
 	}
 
+	//thirdRow := map[string]interface{}{
+	//	"name":  "test 3",
+	//	"phone": "0323929323",
+	//}
+
+	listMapData = append(listMapData, firstRow)
+	listMapData = append(listMapData, secondRow)
+	//listMapData = append(listMapData, thirdRow)
+	log.Println("Data Input: ")
+	log.Println(listMapData)
+
+	_, err := pg.CreateBatch(tableName, listMapData)
+	if err != nil {
+		log.Errorln("FAIL >> TestCreateBatch")
+		log.Errorln("Loi: ")
+		log.Errorln(err)
+		t.Skip()
+	}
+}
+
+func TestCreateOrUpdateBatch(t *testing.T) {
+	//t.SkipNow()
+
+	tableName := "users"
+	var listMapData = make([]map[string]interface{}, 0)
+	firstRow := map[string]interface{}{
+		"id":    1,
+		"name":  "test 1.2.2",
+		"email": "test1@local.com",
+		"phone": "0323929323",
+	}
+
+	secondRow := map[string]interface{}{
+		"id":    2,
+		"name":  "test 2.1.4",
+		"email": "test2@local.com",
+	}
+
 	thirdRow := map[string]interface{}{
+		"id":    4,
 		"name":  "test 3",
 		"phone": "0323929323",
 	}
@@ -80,7 +119,7 @@ func TestCreateBatch(t *testing.T) {
 	log.Println("Data Input: ")
 	log.Println(listMapData)
 
-	_, err := pg.CreateBatch(tableName, listMapData)
+	_, err := pg.CreateOrUpdateBatch(tableName, listMapData, "id")
 	if err != nil {
 		log.Errorln("FAIL >> TestCreateBatch")
 		log.Errorln("Loi: ")
