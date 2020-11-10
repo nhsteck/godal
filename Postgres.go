@@ -72,7 +72,12 @@ func (p Postgres) CreateBatch(tableName string, listMapData []map[string]interfa
 			values = values + ", ("
 		}
 		for j := 0; j < lenColumns; j++ {
-			arrValues = append(arrValues, listMapData[i][listColumns[j]])
+			v := listMapData[i][listColumns[j]]
+			if reflect.ValueOf(v).Kind() == reflect.Map || reflect.ValueOf(v).Kind() == reflect.Array {
+				v, _ = json.Marshal(v)
+			}
+
+			arrValues = append(arrValues, v)
 			if j == lenColumns-1 {
 				values = values + ", " + fmt.Sprintf("$%d", index) + ")"
 			} else if j == 0 {
