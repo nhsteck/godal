@@ -239,7 +239,7 @@ func (p Postgres) GetAllToStruct(tableName string, limit int, offset int, respSt
 		for i, col := range cols {
 			fieldName := mapAttr[colNames[i]]
 			colVal := reflect.ValueOf(col)
-			if colVal.IsValid() {
+			if colVal.IsValid() && newStruct.FieldByName(fieldName).CanSet() {
 				newStruct.FieldByName(fieldName).Set(reflect.ValueOf(col))
 			}
 		}
@@ -338,7 +338,7 @@ func (p Postgres) ExecuteSelectToStruct(sqlQuery string, params []interface{}, r
 		for i, col := range cols {
 			fieldName := mapAttr[colNames[i]]
 			colVal := reflect.ValueOf(col)
-			if colVal.IsValid() {
+			if colVal.IsValid() && newStruct.FieldByName(fieldName).CanSet() {
 				newStruct.FieldByName(fieldName).Set(reflect.ValueOf(col))
 			}
 		}
