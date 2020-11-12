@@ -238,7 +238,10 @@ func (p Postgres) GetAllToStruct(tableName string, limit int, offset int, respSt
 		newStruct := reflect.New(attrType).Elem()
 		for i, col := range cols {
 			fieldName := mapAttr[colNames[i]]
-			newStruct.FieldByName(fieldName).Set(reflect.ValueOf(col))
+			colVal := reflect.ValueOf(col)
+			if colVal.IsValid() {
+				newStruct.FieldByName(fieldName).Set(reflect.ValueOf(col))
+			}
 		}
 
 		arrStruct = append(arrStruct, newStruct.Addr().Interface())
@@ -334,7 +337,10 @@ func (p Postgres) ExecuteSelectToStruct(sqlQuery string, params []interface{}, r
 		newStruct := reflect.New(attrType).Elem()
 		for i, col := range cols {
 			fieldName := mapAttr[colNames[i]]
-			newStruct.FieldByName(fieldName).Set(reflect.ValueOf(col))
+			colVal := reflect.ValueOf(col)
+			if colVal.IsValid() {
+				newStruct.FieldByName(fieldName).Set(reflect.ValueOf(col))
+			}
 		}
 
 		arrStruct = append(arrStruct, newStruct.Addr().Interface())

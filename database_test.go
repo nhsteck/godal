@@ -27,9 +27,9 @@ func setup() {
 	pg = Postgres{
 		Host:        "127.0.0.1",
 		Port:        "5432",
-		Dbname:      "db_godal",
-		User:        "odoo",
-		Pass:        "1234",
+		Dbname:      "dbtest",
+		User:        "hungson",
+		Pass:        "1111",
 		MaxIdleConn: 10,
 		MaxOpenConn: 2,
 	}
@@ -54,22 +54,25 @@ func TestCreate(t *testing.T) {
 }
 
 func TestCreateBatch(t *testing.T) {
-	//t.SkipNow()
+	t.SkipNow()
 
 	tableName := "users"
 	var listMapData = make([]map[string]interface{}, 0)
 	firstRow := map[string]interface{}{
+		"id":    "123",
 		"name":  "test 1",
 		"email": "test1@local.com",
 		"phone": "0323929323",
 	}
 
 	secondRow := map[string]interface{}{
+		"id":    "128",
 		"name":  "test 2",
 		"email": "test2@local.com",
 	}
 
 	thirdRow := map[string]interface{}{
+		"id":    "129",
 		"name":  "test 3",
 		"phone": "0323929323",
 	}
@@ -90,26 +93,26 @@ func TestCreateBatch(t *testing.T) {
 }
 
 func TestCreateOrUpdateBatch(t *testing.T) {
-	t.SkipNow()
+	// t.SkipNow()
 
 	tableName := "users"
 	var listMapData = make([]map[string]interface{}, 0)
 	firstRow := map[string]interface{}{
 		"id":    1,
-		"name":  "test 1.2.2.4",
+		"name":  "test 1.4",
 		"email": "test1@local.com",
 		"phone": "0323929323",
 	}
 
 	secondRow := map[string]interface{}{
 		"id":    2,
-		"name":  "test 2.1.4.5",
+		"name":  "test 2",
 		"email": "test2@local.com",
 	}
 
 	thirdRow := map[string]interface{}{
 		"id":    4,
-		"name":  "test 3.6",
+		"name":  "test 3",
 		"phone": "0323929323",
 	}
 
