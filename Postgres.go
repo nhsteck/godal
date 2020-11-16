@@ -411,6 +411,9 @@ func convertStructToParams(reqStruct interface{}) ([]interface{}, string, string
 
 	attr := reflect.ValueOf(reqStruct)
 	attrType := reflect.TypeOf(reqStruct)
+	if attr.Kind() == reflect.Ptr {
+		attr = attr.Elem()
+	}
 
 	for k := 0; k < attr.NumField(); k++ {
 		fieldTag := attrType.Field(k).Tag

@@ -65,7 +65,7 @@ func TestCreateWithStruct(t *testing.T) {
 
 	tableName := "users"
 	dataReq := User{
-		Id:    "11",
+		Id:    "13",
 		Name:  "Hung Son 1",
 		Email: "son@gmail.com",
 		Phone: "0909728839",
