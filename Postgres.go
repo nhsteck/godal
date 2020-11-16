@@ -413,6 +413,7 @@ func convertStructToParams(reqStruct interface{}) ([]interface{}, string, string
 	attrType := reflect.TypeOf(reqStruct)
 	if attr.Kind() == reflect.Ptr {
 		attr = attr.Elem()
+		attrType = attrType.Elem()
 	}
 
 	for k := 0; k < attr.NumField(); k++ {

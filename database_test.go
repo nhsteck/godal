@@ -64,8 +64,8 @@ func TestCreateWithStruct(t *testing.T) {
 	// t.SkipNow()
 
 	tableName := "users"
-	dataReq := User{
-		Id:    "13",
+	dataReq := &User{
+		Id:    "14",
 		Name:  "Hung Son 1",
 		Email: "son@gmail.com",
 		Phone: "0909728839",
