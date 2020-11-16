@@ -53,6 +53,24 @@ func (p Postgres) Create(tableName string, mapData map[string]interface{}) (inte
 	return rs, nil
 }
 
+func (p Postgres) CreateWithStruct(tableName string, reqStruct interface{}) (interface{}, error) {
+	sqlStatement := `
+		INSERT INTO %s(%s) 
+		VALUES (%s) 
+		RETURNING *
+	`
+	arrValues, strParams, strValues := convertStructToParams(reqStruct)
+	sqlStatement = fmt.Sprintf(sqlStatement, tableName, strParams, strValues)
+
+	rs, err := DBConn.Exec(sqlStatement, arrValues...)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return rs, nil
+}
+
 func (p Postgres) CreateBatch(tableName string, listMapData []map[string]interface{}) (interface{}, error) {
 	sqlStatement := `
 		INSERT INTO %s(%s) 
@@ -376,6 +394,40 @@ func convertMapToParams(mapData map[string]interface{}) ([]interface{}, string, 
 			strValues = strValues + fmt.Sprintf("$%d", loopIndex)
 		} else {
 			strParams = strParams + k + ", "
+			strValues = strValues + fmt.Sprintf("$%d, ", loopIndex)
+		}
+
+		loopIndex++
+	}
+
+	return arrValues, strParams, strValues
+}
+
+func convertStructToParams(reqStruct interface{}) ([]interface{}, string, string) {
+	var arrValues []interface{} = make([]interface{}, 0)
+	var strParams string = ""
+	var strValues string = ""
+	var loopIndex int = 1
+
+	attr := reflect.ValueOf(reqStruct)
+	attrType := reflect.TypeOf(reqStruct)
+
+	for k := 0; k < attr.NumField(); k++ {
+		fieldTag := attrType.Field(k).Tag
+		dbFieldName, _ := fieldTag.Lookup("db")
+		fieldName := attrType.Field(k).Name
+		var valueInput interface{} = (reflect.Indirect(attr).FieldByName(fieldName)).Interface()
+
+		if reflect.ValueOf(valueInput).Kind() == reflect.Map || reflect.ValueOf(valueInput).Kind() == reflect.Array {
+			valueInput, _ = json.Marshal(valueInput)
+		}
+
+		arrValues = append(arrValues, valueInput)
+		if loopIndex == attr.NumField() {
+			strParams = strParams + dbFieldName
+			strValues = strValues + fmt.Sprintf("$%d", loopIndex)
+		} else {
+			strParams = strParams + dbFieldName + ", "
 			strValues = strValues + fmt.Sprintf("$%d, ", loopIndex)
 		}
 

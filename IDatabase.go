@@ -7,6 +7,9 @@ type IDatabase interface {
 	// Insert a record to table
 	Create(tableName string, mapData map[string]interface{}) (interface{}, error)
 
+	// Insert a record to table with struct
+	CreateWithStruct(tableName string, reqStruct interface{}) (interface{}, error)
+
 	// Insert multi record to table
 	CreateBatch(tableName string, listMapData []map[string]interface{}) (interface{}, error)
 

@@ -12,6 +12,13 @@ var (
 	pg IDatabase
 )
 
+type User struct {
+	Id    string `json:"user_id" db:"id" query:"userid"`
+	Name  string `json:"user_name" db:"name" query:"username"`
+	Email string `json:"personal_email" db:"email" query:"useremail"`
+	Phone string `json:"phone_number" db:"phone" query:"phonenumber"`
+}
+
 func TestMain(m *testing.M) {
 	log.Println("Do stuff BEFORE the tests!")
 
@@ -49,6 +56,23 @@ func TestCreate(t *testing.T) {
 	_, err := pg.Create(tableName, mapData)
 	if err != nil {
 		log.Errorln("FAIL >> TestCreate")
+		t.Skip()
+	}
+}
+
+func TestCreateWithStruct(t *testing.T) {
+	// t.SkipNow()
+
+	tableName := "users"
+	dataReq := User{
+		Id:    "11",
+		Name:  "Hung Son 1",
+		Email: "son@gmail.com",
+		Phone: "0909728839",
+	}
+	_, err := pg.CreateWithStruct(tableName, dataReq)
+	if err != nil {
+		log.Errorln("FAIL >> TestCreateWithStruct")
 		t.Skip()
 	}
 }
@@ -93,7 +117,7 @@ func TestCreateBatch(t *testing.T) {
 }
 
 func TestCreateOrUpdateBatch(t *testing.T) {
-	// t.SkipNow()
+	t.SkipNow()
 
 	tableName := "users"
 	var listMapData = make([]map[string]interface{}, 0)
