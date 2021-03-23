@@ -17,8 +17,8 @@ var (
 )
 
 func (p Postgres) Connect() {
-	strConn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-		p.Host, p.Port, p.User, p.Dbname, p.Pass)
+	strConn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
+		p.Host, p.Port, p.User, p.Dbname, p.Pass, p.SSLMode)
 	db, err := sql.Open("postgres", strConn)
 	db.SetMaxIdleConns(int(p.MaxIdleConn))
 	db.SetMaxOpenConns(int(p.MaxOpenConn))
@@ -419,6 +419,19 @@ func convertStructToParams(reqStruct interface{}) ([]interface{}, string, string
 	for k := 0; k < attr.NumField(); k++ {
 		fieldTag := attrType.Field(k).Tag
 		dbFieldName, _ := fieldTag.Lookup("db")
+		arrDbField := strings.Split(dbFieldName, ",")
+
+		isInsert := true
+		for _, tagField := range arrDbField {
+			if tagField == "no_insert" {
+				isInsert = false
+				break
+			}
+		}
+		if isInsert == false {
+			continue
+		}
+
 		fieldName := attrType.Field(k).Name
 		var valueInput interface{} = (reflect.Indirect(attr).FieldByName(fieldName)).Interface()
 

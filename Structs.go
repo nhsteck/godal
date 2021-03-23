@@ -6,6 +6,7 @@ type Postgres struct {
 	Dbname      string
 	User        string
 	Pass        string
+	SSLMode     string
 	MaxIdleConn int32
 	MaxOpenConn int32
 }

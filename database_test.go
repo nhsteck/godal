@@ -13,7 +13,7 @@ var (
 )
 
 type User struct {
-	Id    string `json:"user_id" db:"id" query:"userid"`
+	Id    string `json:"user_id" db:"id,no_insert" query:"userid"`
 	Name  string `json:"user_name" db:"name" query:"username"`
 	Email string `json:"personal_email" db:"email" query:"useremail"`
 	Phone string `json:"phone_number" db:"phone" query:"phonenumber"`
