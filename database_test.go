@@ -39,6 +39,7 @@ func setup() {
 		Pass:        "1111",
 		MaxIdleConn: 10,
 		MaxOpenConn: 2,
+		SSLMode:     "disable",
 	}
 	pg.Connect()
 }
@@ -239,6 +240,29 @@ func TestExecute(t *testing.T) {
 	rs, err := pg.Execute(sqlExecute, params)
 	if err != nil {
 		log.Errorln("FAIL >> TestExecuteSelectToMap ", err)
+		t.Skip()
+	}
+	log.Infoln(rs)
+}
+
+func TestCreateOrUpdateStruct(t *testing.T) {
+	tableName := "dgroup"
+	primaryColumn := "id"
+	type Group struct {
+		Id       string `db:"id"`
+		Name     string `db:"name"`
+		UpdateBy int    `db:"updated_by"`
+	}
+
+	group := Group{
+		Id:       "1",
+		Name:     "Group 123",
+		UpdateBy: 123,
+	}
+
+	rs, err := pg.CreateOrUpdate(tableName, group, primaryColumn)
+	if err != nil {
+		log.Errorln("FAIL >> TestCreateOrUpdateStruct ", err)
 		t.Skip()
 	}
 	log.Infoln(rs)

@@ -71,6 +71,39 @@ func (p Postgres) CreateWithStruct(tableName string, reqStruct interface{}) (int
 	return rs, nil
 }
 
+func (p Postgres) CreateOrUpdate(tableName string, reqStruct interface{}, primaryColumns string) (interface{}, error) {
+	sqlStatement := `
+		INSERT INTO %s(%s)
+		VALUES (%s)
+		ON CONFLICT (%s) DO UPDATE
+		  SET %s
+		`
+	arrValues, strParams, strValues := convertStructToParams(reqStruct)
+
+	excludeStm := ""
+	arrParams := strings.Split(strParams, ",")
+	for _, param := range arrParams {
+		col := strings.Trim(param, " ")
+		if col != primaryColumns {
+			if excludeStm == "" {
+				excludeStm = fmt.Sprintf("%s = EXCLUDED.%s", col, col)
+			} else {
+				excludeStm = excludeStm + ", " + fmt.Sprintf("%s = EXCLUDED.%s", col, col)
+			}
+		}
+	}
+
+	sqlStatement = fmt.Sprintf(sqlStatement, tableName, strParams, strValues, primaryColumns, excludeStm)
+
+	rs, err := DBConn.Exec(sqlStatement, arrValues...)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return rs, nil
+}
+
 func (p Postgres) CreateBatch(tableName string, listMapData []map[string]interface{}) (interface{}, error) {
 	sqlStatement := `
 		INSERT INTO %s(%s) 
