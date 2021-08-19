@@ -470,7 +470,8 @@ func convertStructToParams(reqStruct interface{}) ([]interface{}, string, string
 
 		if reflect.ValueOf(valueInput).Kind() == reflect.Map ||
 			reflect.ValueOf(valueInput).Kind() == reflect.Array ||
-			reflect.ValueOf(valueInput).Kind() == reflect.Struct {
+			reflect.ValueOf(valueInput).Kind() == reflect.Struct ||
+			reflect.ValueOf(valueInput).Kind() == reflect.Slice {
 			valueInput, _ = json.Marshal(valueInput)
 		}
 
