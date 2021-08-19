@@ -452,16 +452,7 @@ func convertStructToParams(reqStruct interface{}) ([]interface{}, string, string
 	for k := 0; k < attr.NumField(); k++ {
 		fieldTag := attrType.Field(k).Tag
 		dbFieldName, _ := fieldTag.Lookup("db")
-		arrDbField := strings.Split(dbFieldName, ",")
-
-		isInsert := true
-		for _, tagField := range arrDbField {
-			if tagField == "no_insert" {
-				isInsert = false
-				break
-			}
-		}
-		if isInsert == false {
+		if dbFieldName == "" {
 			continue
 		}
 
@@ -476,16 +467,14 @@ func convertStructToParams(reqStruct interface{}) ([]interface{}, string, string
 		}
 
 		arrValues = append(arrValues, valueInput)
-		if loopIndex == attr.NumField() {
-			strParams = strParams + dbFieldName
-			strValues = strValues + fmt.Sprintf("$%d", loopIndex)
-		} else {
-			strParams = strParams + dbFieldName + ", "
-			strValues = strValues + fmt.Sprintf("$%d, ", loopIndex)
-		}
+		strParams = strParams + dbFieldName + ", "
+		strValues = strValues + fmt.Sprintf("$%d, ", loopIndex)
 
 		loopIndex++
 	}
+
+	strParams = strings.TrimSuffix(strings.Trim(strParams, " "), ",")
+	strValues = strings.TrimSuffix(strings.Trim(strValues, " "), ",")
 
 	return arrValues, strParams, strValues
 }
