@@ -468,7 +468,9 @@ func convertStructToParams(reqStruct interface{}) ([]interface{}, string, string
 		fieldName := attrType.Field(k).Name
 		var valueInput interface{} = (reflect.Indirect(attr).FieldByName(fieldName)).Interface()
 
-		if reflect.ValueOf(valueInput).Kind() == reflect.Map || reflect.ValueOf(valueInput).Kind() == reflect.Array {
+		if reflect.ValueOf(valueInput).Kind() == reflect.Map ||
+			reflect.ValueOf(valueInput).Kind() == reflect.Array ||
+			reflect.ValueOf(valueInput).Kind() == reflect.Struct {
 			valueInput, _ = json.Marshal(valueInput)
 		}
 

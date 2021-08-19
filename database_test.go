@@ -248,15 +248,26 @@ func TestExecute(t *testing.T) {
 func TestCreateOrUpdateStruct(t *testing.T) {
 	tableName := "dgroup"
 	primaryColumn := "id"
+
+	type GroupName struct {
+		FirstName string
+		LastName  string
+	}
+
 	type Group struct {
-		Id       string `db:"id"`
-		Name     string `db:"name"`
-		UpdateBy int    `db:"updated_by"`
+		Id       string    `db:"id"`
+		Name     GroupName `db:"name"`
+		UpdateBy int       `db:"updated_by"`
+	}
+
+	groupName := GroupName{
+		FirstName: "Nguyen",
+		LastName:  "Son",
 	}
 
 	group := Group{
 		Id:       "1",
-		Name:     "Group 123",
+		Name:     groupName,
 		UpdateBy: 123,
 	}
 
