@@ -1,4 +1,4 @@
-module g.ghn.vn/scte-common/godal
+module github.com/nhsteck/godal
 
 go 1.13
 
