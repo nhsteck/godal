@@ -247,7 +247,7 @@ func TestExecute(t *testing.T) {
 
 func TestCreateOrUpdateStruct(t *testing.T) {
 	tableName := "dgroup"
-	primaryColumn := "id"
+	primaryColumn := []string{"id", "updated_by"}
 
 	type GroupName struct {
 		FirstName string
@@ -255,22 +255,22 @@ func TestCreateOrUpdateStruct(t *testing.T) {
 	}
 
 	type Group struct {
-		Id       string `db:"id"`
-		Name     []GroupName
-		UpdateBy int `db:"updated_by"`
+		Id       string      `db:"id"`
+		Name     []GroupName `db:"name"`
+		UpdateBy int         `db:"updated_by"`
 	}
 
 	groupName := GroupName{
-		FirstName: "Nguyen",
+		FirstName: "Nguyen 1234",
 		LastName:  "Son",
 	}
 
 	groupNames := []GroupName{groupName}
 
 	group := Group{
-		Id:       "1",
+		Id:       "2",
 		Name:     groupNames,
-		UpdateBy: 123456,
+		UpdateBy: 1234,
 	}
 
 	rs, err := pg.CreateOrUpdate(tableName, group, primaryColumn)

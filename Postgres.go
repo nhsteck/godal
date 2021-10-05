@@ -71,7 +71,7 @@ func (p Postgres) CreateWithStruct(tableName string, reqStruct interface{}) (int
 	return rs, nil
 }
 
-func (p Postgres) CreateOrUpdate(tableName string, reqStruct interface{}, primaryColumns string) (interface{}, error) {
+func (p Postgres) CreateOrUpdate(tableName string, reqStruct interface{}, primaryColumns []string) (interface{}, error) {
 	sqlStatement := `
 		INSERT INTO %s(%s)
 		VALUES (%s)
@@ -79,12 +79,18 @@ func (p Postgres) CreateOrUpdate(tableName string, reqStruct interface{}, primar
 		  SET %s
 		`
 	arrValues, strParams, strValues := convertStructToParams(reqStruct)
+	strPrimary := strings.Join(primaryColumns, ",")
+
+	mapPrimary := make(map[string]bool)
+	for _, primary := range primaryColumns {
+		mapPrimary[primary] = true
+	}
 
 	excludeStm := ""
 	arrParams := strings.Split(strParams, ",")
 	for _, param := range arrParams {
 		col := strings.Trim(param, " ")
-		if col != primaryColumns {
+		if !mapPrimary[col] {
 			if excludeStm == "" {
 				excludeStm = fmt.Sprintf("%s = EXCLUDED.%s", col, col)
 			} else {
@@ -93,7 +99,8 @@ func (p Postgres) CreateOrUpdate(tableName string, reqStruct interface{}, primar
 		}
 	}
 
-	sqlStatement = fmt.Sprintf(sqlStatement, tableName, strParams, strValues, primaryColumns, excludeStm)
+	sqlStatement = fmt.Sprintf(sqlStatement, tableName, strParams, strValues, strPrimary, excludeStm)
+	fmt.Println(sqlStatement)
 
 	rs, err := DBConn.Exec(sqlStatement, arrValues...)
 	if err != nil {

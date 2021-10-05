@@ -11,7 +11,7 @@ type IDatabase interface {
 	CreateWithStruct(tableName string, reqStruct interface{}) (interface{}, error)
 
 	// Create or update a record to table with struct
-	CreateOrUpdate(tableName string, reqStruct interface{}, primaryColumns string) (interface{}, error)
+	CreateOrUpdate(tableName string, reqStruct interface{}, primaryColumns []string) (interface{}, error)
 
 	// Insert multi record to table
 	CreateBatch(tableName string, listMapData []map[string]interface{}) (interface{}, error)
