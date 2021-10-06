@@ -35,7 +35,7 @@ type IDatabase interface {
 	ExecuteSelectToMap(sqlQuery string, params []interface{}) ([]map[string]interface{}, error)
 
 	// Execute query and return the struct
-	ExecuteSelectToStruct(sqlQuery string, params []interface{}, respStruct interface{}) (interface{}, error)
+	ExecuteSelectToStruct(sqlQuery string, params []interface{}, respStruct interface{}) ([]interface{}, error)
 
 	// Execute non query
 	Execute(sqlExecute string, params []interface{}) (interface{}, error)

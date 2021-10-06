@@ -347,7 +347,7 @@ func (p Postgres) ExecuteSelectToMap(sqlQuery string, params []interface{}) ([]m
 	return myMap, nil
 }
 
-func (p Postgres) ExecuteSelectToStruct(sqlQuery string, params []interface{}, respStruct interface{}) (interface{}, error) {
+func (p Postgres) ExecuteSelectToStruct(sqlQuery string, params []interface{}, respStruct interface{}) ([]interface{}, error) {
 	sqlStatement := sqlQuery
 
 	rows, err := DBConn.Query(sqlStatement, params...)

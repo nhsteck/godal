@@ -206,25 +206,25 @@ func TestExecuteSelectToMap(t *testing.T) {
 }
 
 func TestExecuteSelectToStruct(t *testing.T) {
-	t.SkipNow()
+	// t.SkipNow()
 	type Users struct {
-		ID    string `db:"id" json:"a_id"`
-		Name  string `db:"name" json:"a_name"`
-		Email string `db:"email" json:"a_email"`
-		Phone string `db:"phone" json:"a_phone"`
+		ID   string `db:"employee_idid" json:"a_id"`
+		Name string `db:"name" json:"a_name"`
+		// Email string `db:"email" json:"a_email"`
+		// Phone string `db:"phone" json:"a_phone"`
 	}
 
 	objUsers := Users{}
-	sqlQuery := `SELECT * FROM users WHERE id >= $1`
-	params := []interface{}{123}
+	sqlQuery := `SELECT * FROM granted_user`
+	params := []interface{}{}
 	rs, err := pg.ExecuteSelectToStruct(sqlQuery, params, objUsers)
 	if err != nil {
 		log.Errorln("FAIL >> TestExecuteSelectToMap ", err)
 		t.Skip()
 	}
 	var arrUsers []Users = make([]Users, 0)
-	arrOrg := rs.([]interface{})
-	for _, elem := range arrOrg {
+	// arrOrg := rs.([]interface{})
+	for _, elem := range rs {
 		newUser := &Users{}
 		byteData, _ := json.Marshal(elem)
 		json.Unmarshal(byteData, &newUser)
