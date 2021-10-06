@@ -100,7 +100,6 @@ func (p Postgres) CreateOrUpdate(tableName string, reqStruct interface{}, primar
 	}
 
 	sqlStatement = fmt.Sprintf(sqlStatement, tableName, strParams, strValues, strPrimary, excludeStm)
-	fmt.Println(sqlStatement)
 
 	rs, err := DBConn.Exec(sqlStatement, arrValues...)
 	if err != nil {
