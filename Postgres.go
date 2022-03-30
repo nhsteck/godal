@@ -396,7 +396,7 @@ func (p Postgres) ExecuteSelectToStruct(sqlQuery string, params []interface{}, r
 			fieldName := mapAttr[colNames[i]]
 			colVal := reflect.ValueOf(col)
 			if colVal.IsValid() && newStruct.FieldByName(fieldName).CanSet() {
-				newStruct.FieldByName(fieldName).Set(reflect.ValueOf(col))
+				newStruct.FieldByName(fieldName).Set(colVal)
 			}
 		}
 
